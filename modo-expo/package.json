@@ -1,7 +1,7 @@
 {
   "name": "modo-expo",
-  "main": "expo-router/entry",
   "version": "1.0.0",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -21,8 +21,6 @@
     "expo-font": "~13.3.1",
     "expo-haptics": "~14.1.4",
     "expo-image": "~2.3.0",
-    "expo-image-manipulator": "~12.2.1",
-    "expo-image-picker": "~15.3.2",
     "expo-linking": "~7.1.5",
     "expo-router": "~5.1.0",
     "expo-splash-screen": "~0.30.9",
@@ -30,6 +28,7 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.8",
     "expo-web-browser": "~14.1.6",
+    "firebase": "^11.9.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.3",
@@ -39,7 +38,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "firebase": "^11.9.1"
+    "expo-image-picker": "~16.1.4",
+    "expo-image-manipulator": "~13.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
