@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Button, ActivityIndicator } from 'react-native';
 import { useNavigation, useLayoutEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { getAuth } from 'firebase/auth';
+import { auth, db, storage } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   const navigation = useNavigation();
-  const auth = getAuth();
   const user = auth.currentUser;
   const [userData, setUserData] = useState<any>(null);
   const [message, setMessage] = useState('');
@@ -65,7 +63,10 @@ export default function HomeScreen() {
   if (!user) {
     return (
       <View style={styles.container}>
-        <Button title="Registrarse" onPress={() => navigation.navigate('Login')} />
+        <Button
+          title="Registrarse"
+          onPress={() => navigation.navigate('Login', { register: true })}
+        />
       </View>
     );
   }

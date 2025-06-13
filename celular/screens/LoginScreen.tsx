@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useNavigation, useLayoutEffect } from '@react-navigation/native';
+import { useNavigation, useLayoutEffect, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -9,6 +9,7 @@ import { app, db, storage } from '../firebase';
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const auth = getAuth(app);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +17,9 @@ export default function LoginScreen() {
   const [edad, setEdad] = useState('');
   const [foto, setFoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(
+    (route.params as any)?.register ?? false
+  );
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
