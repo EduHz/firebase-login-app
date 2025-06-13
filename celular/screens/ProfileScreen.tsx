@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Button, TextInput, ActivityIndicator } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { View, Text, Image, StyleSheet, Button, ActivityIndicator } from 'react-native';
+import { useNavigation, useLayoutEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../../firebase';
+import { db, storage } from '../firebase';
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
   const auth = getAuth();
   const user = auth.currentUser;
   const [userData, setUserData] = useState<any>(null);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: 'Perfil' });
+  }, [navigation]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -54,10 +59,18 @@ export default function HomeScreen() {
 
   const logout = async () => {
     await auth.signOut();
-    router.replace('/perfil/login');
+    navigation.replace('Login');
   };
 
-  if (!user || !userData) {
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Button title="Registrarse" onPress={() => navigation.navigate('Login')} />
+      </View>
+    );
+  }
+
+  if (!userData) {
     return (
       <View style={styles.container}>
         <ActivityIndicator />
@@ -67,7 +80,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: 'Inicio' }} />
       <Text style={styles.title}>Bienvenido, {userData.username}</Text>
       {userData.fotoURL && <Image source={{ uri: userData.fotoURL }} style={styles.preview} />}
       <Text>Correo: {user.email}</Text>
