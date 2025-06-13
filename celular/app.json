@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "modo-expo",
-    "slug": "modo-expo",
+    "name": "celular",
+    "slug": "celular",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "modoexpo",
+    "scheme": "celular",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
