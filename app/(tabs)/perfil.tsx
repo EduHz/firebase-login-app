@@ -20,11 +20,14 @@ import {
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { app, db, storage } from '../../firebase';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function HomeScreen() {
   const auth = getAuth(app);
   const [user, setUser] = useState(auth.currentUser);
   const [userData, setUserData] = useState<any>(null);
+  const colorScheme = useColorScheme() ?? 'light';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,17 +147,17 @@ export default function HomeScreen() {
 
   if (!user) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
         <Stack.Screen options={{ title: isRegistering ? 'Registrarse' : 'Iniciar sesión' }} />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: Colors[colorScheme].icon }]}
           placeholder="Correo"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: Colors[colorScheme].icon }]}
           placeholder="Contraseña"
           secureTextEntry
           value={password}
@@ -163,19 +166,21 @@ export default function HomeScreen() {
         {isRegistering && (
           <>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { borderColor: Colors[colorScheme].icon }]}
               placeholder="Nombre de usuario"
               value={username}
               onChangeText={setUsername}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { borderColor: Colors[colorScheme].icon }]}
               placeholder="Edad"
               value={edad}
               onChangeText={setEdad}
               keyboardType="numeric"
             />
-            <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+            <TouchableOpacity
+              style={[styles.imagePicker, { backgroundColor: Colors[colorScheme].tint }]}
+              onPress={pickImage}>
               <Text>{foto ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
             </TouchableOpacity>
             {foto && <Image source={{ uri: foto.uri }} style={styles.preview} />}
@@ -185,13 +190,17 @@ export default function HomeScreen() {
           <Text style={{ color: isError ? 'red' : 'green', marginBottom: 10 }}>{message}</Text>
         ) : null}
         {loading ? <ActivityIndicator style={{ marginBottom: 10 }} /> : null}
-        <Button title={isRegistering ? 'Crear cuenta' : 'Ingresar'} onPress={handleAuth} />
+        <Button
+          title={isRegistering ? 'Crear cuenta' : 'Ingresar'}
+          onPress={handleAuth}
+          color={Colors[colorScheme].tint}
+        />
         <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)} style={{ marginTop: 10 }}>
           <Text>{isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}</Text>
         </TouchableOpacity>
         {!isRegistering && (
           <TouchableOpacity onPress={() => router.push('/forgot')} style={{ marginTop: 10 }}>
-            <Text style={{ color: 'blue' }}>¿Olvidaste tu contraseña?</Text>
+            <Text style={{ color: Colors[colorScheme].tint }}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -200,23 +209,29 @@ export default function HomeScreen() {
 
   if (!userData) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
         <ActivityIndicator />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
       <Stack.Screen options={{ title: 'Inicio' }} />
-      <Text style={styles.title}>Bienvenido, {userData.username}</Text>
+      <Text style={[styles.title, { color: Colors[colorScheme].icon }]}>Bienvenido, {userData.username}</Text>
       {userData.fotoURL && <Image source={{ uri: userData.fotoURL }} style={styles.preview} />}
       <Text>Correo: {user.email}</Text>
       <Text>Edad: {userData.edad} años</Text>
-      <Button title="Cambiar foto" onPress={pickAndUpload} />
+      <Button
+        title="Cambiar foto"
+        onPress={pickAndUpload}
+        color={Colors[colorScheme].tint}
+      />
       {loading && <ActivityIndicator style={{ marginTop: 10 }} />}
-      {message ? <Text style={{ color: isError ? 'red' : 'green', marginTop: 10 }}>{message}</Text> : null}
-      <Button title="Cerrar sesión" onPress={logout} />
+      {message ? (
+        <Text style={{ color: isError ? 'red' : 'green', marginTop: 10 }}>{message}</Text>
+      ) : null}
+      <Button title="Cerrar sesión" onPress={logout} color={Colors[colorScheme].tint} />
     </View>
   );
 }
@@ -236,7 +251,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#19647E',
     borderRadius: 4,
     padding: 10,
     marginBottom: 10,
@@ -244,7 +259,7 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     padding: 10,
-    backgroundColor: '#ddd',
+    backgroundColor: '#119DA4',
     borderRadius: 4,
     marginBottom: 10,
     alignItems: 'center',
