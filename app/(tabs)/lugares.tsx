@@ -1,9 +1,11 @@
+import { Stack } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function Actividades() {
+export default function Lugares() {
   return (
     <View style={styles.container}>
-      <Text>Pantalla de actividades</Text>
+      <Stack.Screen options={{ title: 'Lugares' }} />
+      <Text>Pantalla de lugares</Text>
     </View>
   );
 }

@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useNavigation, useLayoutEffect } from '@react-navigation/native';
+import { Stack, router } from 'expo-router';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 export default function ForgotPassword() {
-  const navigation = useNavigation();
   const auth = getAuth();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Recuperar contraseña' });
-  }, [navigation]);
 
   const handleSend = async () => {
     if (!email) {
@@ -32,6 +27,7 @@ export default function ForgotPassword() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: 'Recuperar contraseña' }} />
       <TextInput
         style={styles.input}
         placeholder="Correo"
@@ -43,7 +39,7 @@ export default function ForgotPassword() {
       {message ? (
         <Text style={{ color: isError ? 'red' : 'green', marginTop: 10 }}>{message}</Text>
       ) : null}
-      <Button title="Volver" onPress={() => navigation.replace('Login')} />
+      <Button title="Volver" onPress={() => router.replace('/perfil/login')} />
     </View>
   );
 }
