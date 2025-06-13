@@ -72,21 +72,37 @@ export default function HomeScreen() {
         if (!foto) {
           setIsError(true);
           setMessage('Seleccioná una foto de perfil');
-          setLoading(false);
           return;
         }
+
+        // 1. Creás el usuario
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const storageRef = ref(storage, `fotos_perfil/${userCred.user.uid}`);
+        const uid = userCred.user.uid;
+
+        // 2. Subís la foto
+        const storageRef = ref(storage, `fotos_perfil/${uid}`);
         const img = await fetch(foto.uri);
         const blob = await img.blob();
         await uploadBytes(storageRef, blob);
         const fotoURL = await getDownloadURL(storageRef);
-        await setDoc(doc(db, 'usuarios', userCred.user.uid), {
+
+        // 3. Guardás el doc
+        await setDoc(doc(db, 'usuarios', uid), {
           email,
           username,
-          edad: parseInt(edad),
+          edad: parseInt(edad, 10),
           fotoURL,
         });
+
+        // 4. Te logueás de nuevo (por si no lo hizo automáticamente)
+        await signInWithEmailAndPassword(auth, email, password);
+
+        // 5. Cargas manualmente la data al state
+        const snap = await getDoc(doc(db, 'usuarios', uid));
+        if (snap.exists()) {
+          setUserData(snap.data());
+          setUser(userCred.user);
+        }
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -105,7 +121,7 @@ export default function HomeScreen() {
     setLoading(true);
     try {
       const fotoRef = ref(storage, `fotos_perfil/${user.uid}`);
-      await deleteObject(fotoRef).catch(() => {});
+      await deleteObject(fotoRef).catch(() => { });
       const img = await fetch(res.assets[0].uri);
       const blob = await img.blob();
       await uploadBytes(fotoRef, blob);
