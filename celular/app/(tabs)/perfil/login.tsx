@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { app, db, storage } from '../../firebase';
+import { app, db, storage } from '../../../firebase';
 
 export default function LoginScreen() {
   const auth = getAuth(app);
