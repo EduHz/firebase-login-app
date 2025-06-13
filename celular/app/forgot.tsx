@@ -39,7 +39,7 @@ export default function ForgotPassword() {
       {message ? (
         <Text style={{ color: isError ? 'red' : 'green', marginTop: 10 }}>{message}</Text>
       ) : null}
-      <Button title="Volver" onPress={() => router.replace('/login')} />
+      <Button title="Volver" onPress={() => router.replace('/perfil/login')} />
     </View>
   );
 }
