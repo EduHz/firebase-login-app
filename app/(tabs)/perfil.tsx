@@ -19,7 +19,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { app, db, storage } from '../../../firebase';
+import { app, db, storage } from '../../firebase';
 
 export default function HomeScreen() {
   const auth = getAuth(app);
