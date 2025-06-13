@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { useNavigation, useLayoutEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { app, db, storage } from '../../../firebase';
+import { app, db, storage } from '../firebase';
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
   const auth = getAuth(app);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +19,10 @@ export default function LoginScreen() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: isRegistering ? 'Registrarse' : 'Iniciar sesión' });
+  }, [navigation, isRegistering]);
 
   const pickImage = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.5 });
@@ -53,7 +58,7 @@ export default function LoginScreen() {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      router.replace('/perfil');
+      navigation.replace('Perfil');
     } catch (err: any) {
       setIsError(true);
       setMessage(err.message);
@@ -64,7 +69,6 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: isRegistering ? 'Registrarse' : 'Iniciar sesión' }} />
       <TextInput
         style={styles.input}
         placeholder="Correo"
@@ -111,7 +115,7 @@ export default function LoginScreen() {
         <Text>{isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}</Text>
       </TouchableOpacity>
       {!isRegistering && (
-        <TouchableOpacity onPress={() => router.push('/forgot')} style={{ marginTop: 10 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Forgot')} style={{ marginTop: 10 }}>
           <Text style={{ color: 'blue' }}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
       )}
