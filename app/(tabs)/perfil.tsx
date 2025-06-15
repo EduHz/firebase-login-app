@@ -9,8 +9,9 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -20,7 +21,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { app, db, storage } from '../../firebase';
 
@@ -41,6 +42,9 @@ export default function HomeScreen() {
   const [edad, setEdad] = useState('');
   const [foto, setFoto] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
+
+  const [favoritos, setFavoritos] = useState<any[]>([]);
+  const [viewFavs, setViewFavs] = useState(false);
 
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
@@ -136,6 +140,19 @@ export default function HomeScreen() {
   const logout = async () => {
     await auth.signOut();
   };
+
+  const cargarFavoritos = async () => {
+    if (!user) return;
+    const snap = await getDocs(collection(db, 'usuarios', user.uid, 'favoritos'));
+    const docs = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    setFavoritos(docs);
+  };
+
+  useEffect(() => {
+    if (viewFavs) {
+      cargarFavoritos();
+    }
+  }, [viewFavs, user]);
 
   // ---------- LOGIN / REGISTRO ----------
   if (!user) {
@@ -235,6 +252,34 @@ export default function HomeScreen() {
   }
 
   // ---------- PERFIL (USUARIO LOGUEADO) ----------
+  if (viewFavs) {
+    return (
+      <View style={styles.profileContainer}>
+        <Stack.Screen options={{ headerShown: false }} />
+
+        <TouchableOpacity onPress={() => setViewFavs(false)} style={{ alignSelf: 'flex-start', marginBottom: 10 }}>
+          <Text style={{ color: '#fff' }}>← Volver</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.profileTitle}>Mis favoritos</Text>
+
+        {favoritos.length === 0 ? (
+          <Text style={styles.profileText}>No tienes favoritos</Text>
+        ) : (
+          <FlatList
+            data={favoritos}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => router.push(`/lugar/${item.id}`)}>
+                <Text style={styles.profileText}>{item.nombre}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.profileContainer}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -251,6 +296,10 @@ export default function HomeScreen() {
 
         <Text style={styles.profileText}>Correo: {user.email}</Text>
         <Text style={styles.profileText}>Edad: {userData.edad} años</Text>
+
+        <TouchableOpacity style={styles.profileButton} onPress={() => setViewFavs(true)}>
+          <Text style={styles.profileButtonText}>VER FAVORITOS</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.profileButton} onPress={pickAndUpload}>
           <Text style={styles.profileButtonText}>CAMBIAR FOTO</Text>
