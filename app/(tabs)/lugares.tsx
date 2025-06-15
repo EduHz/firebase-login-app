@@ -6,14 +6,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase'; // ajustá si tu path es diferente
+import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import MapView, { Marker } from 'react-native-maps';
+
+import { db } from '../../firebase'; // ajustá si tu path es distinto
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import MapView, { Marker } from 'react-native-maps';
 
 const categoriasDisponibles = ['cafeterias', 'montanas', 'cervecerias'];
 
@@ -22,7 +25,7 @@ export default function Lugares() {
   const [categoria, setCategoria] = useState('cafeterias');
   const [lugares, setLugares] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [seleccionado, setSeleccionado] = useState<any | null>(null); // 🔁 lugar seleccionado
+  const [seleccionado, setSeleccionado] = useState<any | null>(null);
 
   const cargarLugares = async (cat: string) => {
     setLoading(true);
@@ -35,6 +38,22 @@ export default function Lugares() {
       console.error('Error al cargar lugares:', error);
     }
     setLoading(false);
+  };
+
+  const agregarAFavoritos = async (lugar: any) => {
+    const user = getAuth().currentUser;
+    if (!user) {
+      Alert.alert('Iniciá sesión', 'Tenés que iniciar sesión para guardar favoritos.');
+      return;
+    }
+
+    try {
+      const ref = doc(db, 'usuarios', user.uid, 'favoritos', lugar.id);
+      await setDoc(ref, lugar);
+      Alert.alert('❤️ Favorito guardado', `${lugar.nombre} fue agregado a tus favoritos.`);
+    } catch (error) {
+      console.error('❌ Error al guardar favorito:', error);
+    }
   };
 
   useEffect(() => {
@@ -53,7 +72,7 @@ export default function Lugares() {
     </TouchableOpacity>
   );
 
-  // 🔁 Vista detalle
+  // Vista de detalle
   if (seleccionado) {
     const lat = parseFloat(seleccionado?.coordenadas?.lat ?? 0);
     const lng = parseFloat(seleccionado?.coordenadas?.lng ?? 0);
@@ -61,6 +80,7 @@ export default function Lugares() {
     return (
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
         <Stack.Screen options={{ title: seleccionado.nombre }} />
+
         <TouchableOpacity onPress={() => setSeleccionado(null)}>
           <Text style={{ color: '#f90', marginBottom: 10 }}>← Volver</Text>
         </TouchableOpacity>
@@ -68,6 +88,13 @@ export default function Lugares() {
         <Text style={styles.nombre}>{seleccionado.nombre}</Text>
         <Text style={styles.descripcion}>{seleccionado.descripcion}</Text>
         <Text style={styles.direccion}>📍 {seleccionado.direccion}</Text>
+
+        <TouchableOpacity
+          onPress={() => agregarAFavoritos(seleccionado)}
+          style={styles.favoritoBtn}
+        >
+          <Text style={styles.favoritoTxt}>❤️ Agregar a favoritos</Text>
+        </TouchableOpacity>
 
         <Text style={styles.subtitulo}>Horarios:</Text>
         {seleccionado.horarios ? (
@@ -97,7 +124,7 @@ export default function Lugares() {
     );
   }
 
-  // 🟦 Vista lista
+  // Vista de lista
   return (
     <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
       <Stack.Screen options={{ title: 'Lugares' }} />
@@ -176,6 +203,17 @@ const styles = StyleSheet.create({
   direccion: {
     fontSize: 12,
     color: '#999',
+  },
+  favoritoBtn: {
+    backgroundColor: '#f90',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 12,
+  },
+  favoritoTxt: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
   },
   subtitulo: {
     marginTop: 16,
